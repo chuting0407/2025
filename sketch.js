@@ -144,9 +144,21 @@ function draw() {
   }
 
   // 持續生成新詞彙球
-  if (frameCount % 60 === 0) { // 每隔 60 幀生成一個新球
+  if (frameCount % 40 === 0) { // 每隔 40 幀生成一個新球
     let word = random(words);
-    balls.push(new Ball(random(width), 0, word));
+    let newBall;
+    let overlapping;
+    do {
+      overlapping = false;
+      newBall = new Ball(random(width), 0, word); // 隨機生成球
+      for (let ball of balls) {
+        if (dist(newBall.x, newBall.y, ball.x, ball.y) < newBall.radius + ball.radius) {
+          overlapping = true; // 如果交疊，標記為 true
+          break;
+        }
+      }
+    } while (overlapping); // 如果交疊，重新生成
+    balls.push(newBall);
   }
 
   // 更新分數顯示
@@ -206,7 +218,19 @@ function restartGame() {
   balls = []; // 清空詞彙球
   for (let i = 0; i < 5; i++) {
     let word = random(words); // 隨機分配詞彙
-    balls.push(new Ball(random(width), 0, word));
+    let newBall;
+    let overlapping;
+    do {
+      overlapping = false;
+      newBall = new Ball(random(width), random(height / 2), word); // 隨機生成球
+      for (let ball of balls) {
+        if (dist(newBall.x, newBall.y, ball.x, ball.y) < newBall.radius + ball.radius) {
+          overlapping = true; // 如果交疊，標記為 true
+          break;
+        }
+      }
+    } while (overlapping); // 如果交疊，重新生成
+    balls.push(newBall);
   }
   startTime = millis(); // 重置遊戲開始時間
   loop(); // 重新啟動 draw 函數
