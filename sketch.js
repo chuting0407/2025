@@ -47,12 +47,6 @@ function setup() {
 
   engine = Engine.create();
 
-  // 初始化 5 個詞彙球
-  for (let i = 0; i < 5; i++) {
-    let word = random(words); // 隨機分配詞彙
-    balls.push(new Ball(random(width), 0, word));
-  }
-
   startTime = millis(); // 記錄遊戲開始時間
 }
 
@@ -144,13 +138,13 @@ function draw() {
   }
 
   // 持續生成新詞彙球
-  if (frameCount % 60 === 0) { // 每隔 40 幀生成一個新球
+  if (frameCount % 60 === 0 && balls.length < 10) { // 每隔 60 幀生成一個新球，且球數量小於 10
     let word = random(words);
     let newBall;
     let overlapping;
     do {
       overlapping = false;
-      newBall = new Ball(random(width), 0, word); // 隨機生成球
+      newBall = new Ball(random(50, width - 50), 0, word); // 確保球在畫布範圍內生成
       for (let ball of balls) {
         if (dist(newBall.x, newBall.y, ball.x, ball.y) < newBall.radius + ball.radius) {
           overlapping = true; // 如果交疊，標記為 true
@@ -159,6 +153,16 @@ function draw() {
       }
     } while (overlapping); // 如果交疊，重新生成
     balls.push(newBall);
+  }
+
+  // 更新和顯示球
+  for (let i = balls.length - 1; i >= 0; i--) {
+    let ball = balls[i];
+    ball.update();
+    ball.display();
+    if (ball.y > height) {
+      balls.splice(i, 1); // 移除超出畫布的球
+    }
   }
 
   // 更新分數顯示
@@ -172,7 +176,7 @@ class Ball {
     this.y = y;
     this.word = word;
     this.radius = 50; // 放大詞彙球
-    this.speed = random(1, 3); // 增加速度範圍
+    this.speed = random(1,3); // 調整速度範圍，讓球移動更慢
     this.color = random(colorPalette); // 隨機顏色
     this.touched = false; // 標記球是否已被碰到
   }
@@ -182,6 +186,8 @@ class Ball {
     if (this.y > height) {
       this.reset(); // 超出畫布重置
     }
+    // 限制球的 x 座標在畫布範圍內
+    this.x = constrain(this.x, this.radius, width - this.radius);
   }
 
   display() {
@@ -205,7 +211,7 @@ class Ball {
   }
 
   reset() {
-    this.x = random(width);
+    this.x = random(this.radius, width - this.radius); // 確保球在畫布範圍內生成
     this.y = 0;
     this.word = random(words); // 隨機分配新詞
     this.color = random(colorPalette); // 隨機分配新顏色
@@ -216,22 +222,6 @@ class Ball {
 function restartGame() {
   score = 0; // 重置分數
   balls = []; // 清空詞彙球
-  for (let i = 0; i < 5; i++) {
-    let word = random(words); // 隨機分配詞彙
-    let newBall;
-    let overlapping;
-    do {
-      overlapping = false;
-      newBall = new Ball(random(width), random(height / 2), word); // 隨機生成球
-      for (let ball of balls) {
-        if (dist(newBall.x, newBall.y, ball.x, ball.y) < newBall.radius + ball.radius) {
-          overlapping = true; // 如果交疊，標記為 true
-          break;
-        }
-      }
-    } while (overlapping); // 如果交疊，重新生成
-    balls.push(newBall);
-  }
   startTime = millis(); // 重置遊戲開始時間
   loop(); // 重新啟動 draw 函數
 }
