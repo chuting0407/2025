@@ -144,7 +144,7 @@ function draw() {
   }
 
   // 持續生成新詞彙球
-  if (frameCount % 40 === 0) { // 每隔 40 幀生成一個新球
+  if (frameCount % 60 === 0) { // 每隔 40 幀生成一個新球
     let word = random(words);
     let newBall;
     let overlapping;
